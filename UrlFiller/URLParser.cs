@@ -6,7 +6,7 @@ namespace UrlFiller;
 public class URLParser
 {
     private Url InputUrl { get; }
-    private Dictionary<string, IValueResolver> valueResolvers;
+    private readonly Dictionary<string, IValueResolver> valueResolvers;
 
     public URLParser(string inputUrl, Dictionary<string, IValueResolver> valueResolvers)
     {
@@ -34,8 +34,8 @@ public class URLParser
     private Dictionary<string, string> GetQueryParams()
     {
         var NewQueryParams = new Dictionary<string, string>();
-        foreach (var item in InputUrl.QueryParams)
-            NewQueryParams.Add(item.Name, GetRealValue(item.Value.ToString()));
+        foreach (var (Name, Value) in InputUrl.QueryParams)
+            NewQueryParams.Add(Name, GetRealValue(Value.ToString()));
         return NewQueryParams;
     }
     private string GetRealValue(string? paramName)
