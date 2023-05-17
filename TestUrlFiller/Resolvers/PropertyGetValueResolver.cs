@@ -2,7 +2,7 @@
 
 public class PropertyGetValueResolver : IValueResolver
 {
-    private object targetObject;
+    private readonly object targetObject;
 
     public PropertyGetValueResolver(object targetObject)
     {
@@ -13,8 +13,8 @@ public class PropertyGetValueResolver : IValueResolver
     {
         var propertyInfo = targetObject.GetType().GetProperty(input);
 
-        if (propertyInfo == null)
-            throw new ArgumentException($"No property '{input}' found in object of type '{targetObject.GetType().Name}'");
-        return propertyInfo.GetValue(targetObject)?.ToString() ?? string.Empty;
+        return propertyInfo == null
+            ? throw new ArgumentException($"No property '{input}' found in object of type '{targetObject.GetType().Name}'")
+            : propertyInfo.GetValue(targetObject)?.ToString() ?? string.Empty;
     }
 }

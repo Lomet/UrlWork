@@ -2,7 +2,7 @@
 
 public class FunctionCallValueResolver : IValueResolver
 {
-    private Func<string, string> function;
+    private readonly Func<string, string> function;
 
     public FunctionCallValueResolver(Func<string, string> function)
     {
