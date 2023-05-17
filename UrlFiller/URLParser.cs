@@ -1,55 +1,42 @@
 ﻿using Flurl;
 using UrlFiller.Resolver;
+using System.Linq;
 
-namespace UrlFiller;
-
-public class URLParser
+namespace UrlFiller
 {
-    private Url InputUrl { get; }
-    private readonly Dictionary<string, IValueResolver> valueResolvers;
+    public class URLParser
+    {
+        private readonly Dictionary<string, IValueResolver> valueResolvers;
 
-    public URLParser(string inputUrl, Dictionary<string, IValueResolver> valueResolvers)
-    {
-        InputUrl = new(inputUrl);
-        this.valueResolvers = valueResolvers;
-    }
-    public Url GetOutputUrl()
-    {
-        var outputUrl = new Url(InputUrl);
-        outputUrl.ResetToRoot();
-        outputUrl.AppendPathSegments(GetPathParams());
-        outputUrl.SetQueryParams(GetQueryParams());
-        return outputUrl;
-    }
-
-    private string[] GetPathParams()
-    {
-        var pathParams = InputUrl.PathSegments.ToList();
-        var newPathParams = new List<string>();
-        foreach (var item in pathParams)
-        newPathParams.Add(GetRealValue(item));
-        return newPathParams.ToArray();
-    }
-
-    private Dictionary<string, string> GetQueryParams()
-    {
-        var NewQueryParams = new Dictionary<string, string>();
-        foreach (var (Name, Value) in InputUrl.QueryParams)
-            NewQueryParams.Add(Name, GetRealValue(Value.ToString()));
-        return NewQueryParams;
-    }
-    private string GetRealValue(string? paramName)
-    {
-        if (paramName is null)
-            return string.Empty;
-        if (paramName.StartsWith('[') && paramName.EndsWith(']'))
+        public URLParser(Dictionary<string, IValueResolver> valueResolvers)
         {
-            paramName = paramName.Trim('[', ']');
-            if (valueResolvers.TryGetValue(paramName, out var resolver))
-                return resolver.GetValue(paramName);
-            else
-                throw new Exception($"No value resolver found for parameter '{paramName}'");
+            this.valueResolvers = valueResolvers;
         }
-        return paramName;
+
+        public Url GetOutputUrl(string Url)
+        {
+            var inputUrl = new Url(Url);
+            var outputUrl = new Url(inputUrl.Root);
+            outputUrl.AppendPathSegments(inputUrl.PathSegments.Select(GetRealValue));
+            outputUrl.SetQueryParams(inputUrl.QueryParams.Select(p => new KeyValuePair<string, string>(p.Name, GetRealValue(p.Value.ToString()))));
+            return outputUrl;
+        }
+
+        private string GetRealValue(string? paramName)
+        {
+            if (paramName is null)
+                return string.Empty;
+
+            if (paramName.StartsWith('[') && paramName.EndsWith(']'))
+            {
+                paramName = paramName.Trim('[', ']');
+                if (valueResolvers.TryGetValue(paramName, out var resolver))
+                    return resolver.GetValue(paramName);
+
+                throw new Exception($"No value resolver found for parameter '{paramName}'");
+            }
+
+            return paramName;
+        }
     }
 }

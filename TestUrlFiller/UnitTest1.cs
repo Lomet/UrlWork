@@ -47,10 +47,10 @@ public class UnitTest1
         };
 
         // Create a URLParser and pass the dictionary to its constructor
-        var parser = new URLParser(FullUrl, valueResolvers);
+        var parser = new URLParser(valueResolvers);
 
         // Use the URLParser to create the output URL
-        var outputUrl = parser.GetOutputUrl();
+        var outputUrl = parser.GetOutputUrl(FullUrl);
         Assert.Equal(expexted, outputUrl);
     }
 }
