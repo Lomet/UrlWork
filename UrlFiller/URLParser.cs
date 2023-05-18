@@ -30,7 +30,7 @@ public class URLParser
     private string ResolveEncapsulatedParam(string cleanParamName) =>
          valueResolvers.TryGetValue(cleanParamName, out var resolver)
             ? resolver.GetValue(cleanParamName)
-            : throw new Exception($"No value resolver found for parameter '{cleanParamName}'");
+            : throw new KeyNotFoundException($"{cleanParamName} Not Found in {nameof(valueResolvers)}");
 
     private string ExtractCleanValue(string encapsulatedValue) => encapsulatedValue.Trim(encapsulationMarkers[0], encapsulationMarkers[1]);
 

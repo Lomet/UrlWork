@@ -63,4 +63,27 @@ public class URLParserTests
 
         Assert.Equal(ExpectedUrlWithTrailingSlash, outputUrl);
     }
+    [Fact]
+    public void TestValueResolverNotFound()
+    {
+        var parser = new URLParser(ValueResolvers);
+        string urlWithInvalidPlaceholder = "https://example.com/[InvalidPlaceholder]";
+
+        Exception ex = Assert.Throws<KeyNotFoundException>(() => parser.ParseUrl(urlWithInvalidPlaceholder));
+
+        Assert.Equal($"InvalidPlaceholder Not Found in valueResolvers", ex.Message);
+    }
+
+    [Fact]
+    public void TestEncapsulationMarkersParentheses()
+    {
+        var customEncapsulationMarkers = new char[] { '(', ')' };
+        var customUrl = "https://api.covalenthq.com/v1/(ChainId)/events/address/(ContractAddress)?starting-block=(StartingBlock)&ending-block=(EndingBlock)&page-number=(PageNumber)&page-size=(MaxPageNumber)&key=(Key)";
+
+        var outputUrl = new URLParser(ValueResolvers, false, customEncapsulationMarkers).ParseUrl(customUrl);
+
+        Assert.Equal(ExpectedUrl, outputUrl);
+    }
+
+
 }
