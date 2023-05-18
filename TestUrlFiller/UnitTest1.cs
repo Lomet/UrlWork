@@ -11,18 +11,18 @@ public class UnitTest1
     const string expexted = "https://api.covalenthq.com/v1/1/events/address/0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9?starting-block=0&ending-block=99999999&page-number=0&page-size=99999999&key=ckey_1234567890";
     const string expexted2 = "https://api.covalenthq.com/v1/1/events/address/0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9/?starting-block=0&ending-block=99999999&page-number=0&page-size=99999999&key=ckey_1234567890";
 
-    internal DownloaderSettings downloaderSettings { get; set; }
-    internal Dictionary<string, string> lastBlockDictionary { get; set; }
-    internal string chainSettings { get; set; }
-    internal PropertyGetValueResolver downloaderSettingsResolver { get; set; }
-    internal FunctionCallValueResolver endingBlockResolver { get; set; }
-    internal Dictionary<string, IValueResolver> valueResolvers { get; set; }
+    internal DownloaderSettings DownloaderSettings { get; set; }
+    internal Dictionary<string, string> LastBlockDictionary { get; set; }
+    internal string ChainSettings { get; set; }
+    internal PropertyGetValueResolver DownloaderSettingsResolver { get; set; }
+    internal FunctionCallValueResolver EndingBlockResolver { get; set; }
+    internal Dictionary<string, IValueResolver> ValueResolvers { get; set; }
 
     public UnitTest1()
     {
         #region PreMadeCode
         // Create a DownloaderSettings instance
-        downloaderSettings = new DownloaderSettings
+        DownloaderSettings = new DownloaderSettings
         {
             ChainId = "1",
             ContractAddress = "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
@@ -32,22 +32,22 @@ public class UnitTest1
             PageNumber = "0"
             // Set other properties...
         };
-        lastBlockDictionary = new Dictionary<string, string>();
-        chainSettings = "";
+        LastBlockDictionary = new Dictionary<string, string>();
+        ChainSettings = "";
         #endregion PreMadeCode
 
-        downloaderSettingsResolver = new PropertyGetValueResolver(downloaderSettings);
-        endingBlockResolver = new FunctionCallValueResolver(input => JustFunction.EndingBlock(downloaderSettings, lastBlockDictionary, chainSettings));
+        DownloaderSettingsResolver = new PropertyGetValueResolver(DownloaderSettings);
+        EndingBlockResolver = new FunctionCallValueResolver(input => JustFunction.EndingBlock(DownloaderSettings, LastBlockDictionary, ChainSettings));
 
-        valueResolvers = new Dictionary<string, IValueResolver>
+        ValueResolvers = new Dictionary<string, IValueResolver>
         {
-            ["ChainId"] = downloaderSettingsResolver,
-            ["ContractAddress"] = downloaderSettingsResolver,
-            ["StartingBlock"] = downloaderSettingsResolver,
-            ["EndingBlock"] = endingBlockResolver,
-            ["PageNumber"] = downloaderSettingsResolver,
-            ["MaxPageNumber"] = downloaderSettingsResolver,  // Assuming MaxPageNumber is the same as PageNumber
-            ["Key"] = downloaderSettingsResolver
+            ["ChainId"] = DownloaderSettingsResolver,
+            ["ContractAddress"] = DownloaderSettingsResolver,
+            ["StartingBlock"] = DownloaderSettingsResolver,
+            ["EndingBlock"] = EndingBlockResolver,
+            ["PageNumber"] = DownloaderSettingsResolver,
+            ["MaxPageNumber"] = DownloaderSettingsResolver,  // Assuming MaxPageNumber is the same as PageNumber
+            ["Key"] = DownloaderSettingsResolver
         };
     }
 
@@ -55,7 +55,7 @@ public class UnitTest1
     public void Test1()
     {
         // Create a URLParser and pass the dictionary to its constructor
-        var parser = new URLParser(valueResolvers);
+        var parser = new URLParser(ValueResolvers);
 
         // Use the URLParser to create the output URL
         var outputUrl = parser.GetOutputUrl(FullUrl);
@@ -64,7 +64,7 @@ public class UnitTest1
     [Fact] public void Test2()
     {
         // Create a URLParser and pass the dictionary to its constructor
-        var parser = new URLParser(valueResolvers,true);
+        var parser = new URLParser(ValueResolvers,true);
 
         // Use the URLParser to create the output URL
         var outputUrl = parser.GetOutputUrl(FullUrl);

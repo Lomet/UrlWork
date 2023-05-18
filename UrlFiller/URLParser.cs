@@ -9,10 +9,12 @@ namespace UrlFiller
         private readonly char[] chars = new char[] { '[', ']' };
         private bool NeedTrailingSlash { get; set; }
 
-        public URLParser(Dictionary<string, IValueResolver> valueResolvers, bool trailing = false)
+        public URLParser(Dictionary<string, IValueResolver> valueResolvers, bool needsTrailingSlash = false, char[]? chars = null)
         {
+            if (chars is not null)
+                this.chars = chars;
             this.valueResolvers = valueResolvers;
-            NeedTrailingSlash = trailing;
+            NeedTrailingSlash = needsTrailingSlash;
         }
 
         public Url GetOutputUrl(string Url) => GetOutputUrl(new Url(Url));
