@@ -1,50 +1,43 @@
 ﻿using Flurl;
 using UrlFiller.Resolver;
 
-namespace UrlFiller
+namespace UrlFiller;
+
+public class URLParser
 {
-    public class URLParser
+    private readonly Dictionary<string, IValueResolver> valueResolvers;
+    private readonly char[] encapsulationMarkers = new char[] { '[', ']' };
+    private bool IncludeTrailingSlash { get; set; }
+
+    public URLParser(Dictionary<string, IValueResolver> valueResolvers, bool includeTrailingSlash = false, char[]? encapsulationMarkers = null)
     {
-        private readonly Dictionary<string, IValueResolver> valueResolvers;
-        private readonly char[] chars = new char[] { '[', ']' };
-        private bool NeedTrailingSlash { get; set; }
-
-        public URLParser(Dictionary<string, IValueResolver> valueResolvers, bool needsTrailingSlash = false, char[]? chars = null)
-        {
-            if (chars is not null)
-                this.chars = chars;
-            this.valueResolvers = valueResolvers;
-            NeedTrailingSlash = needsTrailingSlash;
-        }
-
-        public Url GetOutputUrl(string Url) => GetOutputUrl(new Url(Url));
-
-        public Url GetOutputUrl(Url url)
-        {
-            var result = new Url(url.Root)
-               .AppendPathSegments(url.PathSegments.Select(GetRealValue))
-               .SetQueryParams(url.QueryParams.Select(p =>
-                   new KeyValuePair<string, string>(p.Name, GetRealValue(p.Value.ToString()))));
-            if (NeedTrailingSlash)
-                result = result.AppendPathSegment("/");
-            return result;
-        }
-
-        private string GetRealValue(string? paramName)
-        {
-            if (paramName is null)
-                return string.Empty;
-
-            if (paramName.StartsWith(chars[0]) && paramName.EndsWith(chars[1]))
-            {
-                paramName = paramName.Trim(chars[0], chars[1]);
-                if (valueResolvers.TryGetValue(paramName, out var resolver))
-                    return resolver.GetValue(paramName);
-
-                throw new Exception($"No value resolver found for parameter '{paramName}'");
-            }
-
-            return paramName;
-        }
+        if (encapsulationMarkers is not null)
+            this.encapsulationMarkers = encapsulationMarkers;
+        this.valueResolvers = valueResolvers;
+        IncludeTrailingSlash = includeTrailingSlash;
     }
+
+    public Url ParseUrl(string urlString) => ParseUrl(new Url(urlString));
+
+    public Url ParseUrl(Url url) => new Url(url.Root)
+       .AppendPathSegments(url.PathSegments.Select(ResolveParameterValue))
+       .SetQueryParams(url.QueryParams.ToDictionary(p => p.Name, p => ResolveParameterValue(p.Value.ToString())))
+       .AppendPathSegment(IncludeTrailingSlash ? "/" : string.Empty);
+
+    private string ResolveParameterValue(string? paramName) =>
+        string.IsNullOrEmpty(paramName) ? string.Empty : ExtractAndResolveParam(paramName!);
+
+    private string ResolveEncapsulatedParam(string cleanParamName) =>
+         valueResolvers.TryGetValue(cleanParamName, out var resolver)
+            ? resolver.GetValue(cleanParamName)
+            : throw new Exception($"No value resolver found for parameter '{cleanParamName}'");
+
+    private string ExtractCleanValue(string encapsulatedValue) => encapsulatedValue.Trim(encapsulationMarkers[0], encapsulationMarkers[1]);
+
+    private bool IsEncapsulated(string value) => value.StartsWith(encapsulationMarkers[0]) && value.EndsWith(encapsulationMarkers[1]);
+
+    private string ExtractAndResolveParam(string paramName) => !IsEncapsulated(paramName)
+            ? paramName
+            : ResolveEncapsulatedParam(ExtractCleanValue(paramName));
+
 }

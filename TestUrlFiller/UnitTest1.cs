@@ -8,8 +8,8 @@ namespace TestUrlFiller;
 public class UnitTest1
 {
     const string FullUrl = "https://api.covalenthq.com/v1/[ChainId]/events/address/[ContractAddress]/?starting-block=[StartingBlock]&ending-block=[EndingBlock]&page-number=[PageNumber]&page-size=[MaxPageNumber]&key=[Key]";
-    const string expexted = "https://api.covalenthq.com/v1/1/events/address/0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9?starting-block=0&ending-block=99999999&page-number=0&page-size=99999999&key=ckey_1234567890";
-    const string expexted2 = "https://api.covalenthq.com/v1/1/events/address/0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9/?starting-block=0&ending-block=99999999&page-number=0&page-size=99999999&key=ckey_1234567890";
+    const string BaseExpexted = "https://api.covalenthq.com/v1/1/events/address/0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9?starting-block=0&ending-block=99999999&page-number=0&page-size=99999999&key=ckey_1234567890";
+    const string ExpextedWithTralingSlash = "https://api.covalenthq.com/v1/1/events/address/0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9/?starting-block=0&ending-block=99999999&page-number=0&page-size=99999999&key=ckey_1234567890";
 
     internal DownloaderSettings DownloaderSettings { get; set; }
     internal Dictionary<string, string> LastBlockDictionary { get; set; }
@@ -54,14 +54,14 @@ public class UnitTest1
     [Fact]
     public void Test1()
     {
-        var outputUrl = new URLParser(ValueResolvers).GetOutputUrl(FullUrl);
+        var outputUrl = new URLParser(ValueResolvers).ParseUrl(FullUrl);
 
-        Assert.Equal(expexted, outputUrl);
+        Assert.Equal(BaseExpexted, outputUrl);
     }
     [Fact] public void Test2()
     {
-        var outputUrl = new URLParser(ValueResolvers, true).GetOutputUrl(FullUrl);
+        var outputUrl = new URLParser(ValueResolvers, true).ParseUrl(FullUrl);
 
-        Assert.Equal(expexted2, outputUrl);
+        Assert.Equal(ExpextedWithTralingSlash, outputUrl);
     }
 }
