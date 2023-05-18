@@ -1,6 +1,5 @@
 ﻿using Flurl;
 using UrlFiller.Resolver;
-using System.Linq;
 
 namespace UrlFiller
 {
@@ -13,14 +12,12 @@ namespace UrlFiller
             this.valueResolvers = valueResolvers;
         }
 
-        public Url GetOutputUrl(string Url)
-        {
-            var inputUrl = new Url(Url);
-            var outputUrl = new Url(inputUrl.Root);
-            outputUrl.AppendPathSegments(inputUrl.PathSegments.Select(GetRealValue));
-            outputUrl.SetQueryParams(inputUrl.QueryParams.Select(p => new KeyValuePair<string, string>(p.Name, GetRealValue(p.Value.ToString()))));
-            return outputUrl;
-        }
+        public Url GetOutputUrl(string Url) => GetParsedUrl(new Url(Url));
+        
+        private Url GetParsedUrl(Url url) => new Url(url.Root)
+                .AppendPathSegments(url.PathSegments.Select(GetRealValue))
+                .SetQueryParams(url.QueryParams.Select(p =>
+                    new KeyValuePair<string, string>(p.Name, GetRealValue(p.Value.ToString()))));
 
         private string GetRealValue(string? paramName)
         {
