@@ -1,4 +1,5 @@
 # URLWork
+https://www.nuget.org/packages/UrlFiller/1.0.0
 
 This project provides a straightforward way to parse URLs containing placeholders and replace them with actual values using a dictionary of value resolvers.
 
