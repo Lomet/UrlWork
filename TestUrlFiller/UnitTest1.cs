@@ -11,66 +11,14 @@ public class UnitTest1
     const string expexted = "https://api.covalenthq.com/v1/1/events/address/0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9?starting-block=0&ending-block=99999999&page-number=0&page-size=99999999&key=ckey_1234567890";
     const string expexted2 = "https://api.covalenthq.com/v1/1/events/address/0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9/?starting-block=0&ending-block=99999999&page-number=0&page-size=99999999&key=ckey_1234567890";
 
-    [Fact]
-    public void Test1()
-    {
-        DownloaderSettings downloaderSettings;
-        Dictionary<string, string> lastBlockDictionary;
-        string chainSettings;
-        PreMadeCode(out downloaderSettings, out lastBlockDictionary, out chainSettings);        // Until this point, all this code is in the main program, and the following code is in the test project
-        // Create some instances of your resolvers
-        var downloaderSettingsResolver = new PropertyGetValueResolver(downloaderSettings);
-        var endingBlockResolver = new FunctionCallValueResolver(input => JustFunction.EndingBlock(downloaderSettings, lastBlockDictionary, chainSettings));
-        // Create a dictionary that maps parameter names to resolvers
-        var valueResolvers = new Dictionary<string, IValueResolver>
-        {
-            ["ChainId"] = downloaderSettingsResolver,
-            ["ContractAddress"] = downloaderSettingsResolver,
-            ["StartingBlock"] = downloaderSettingsResolver,
-            ["EndingBlock"] = endingBlockResolver,
-            ["PageNumber"] = downloaderSettingsResolver,
-            ["MaxPageNumber"] = downloaderSettingsResolver,  // Assuming MaxPageNumber is the same as PageNumber
-            ["Key"] = downloaderSettingsResolver
-        };
+    internal DownloaderSettings downloaderSettings { get; set; }
+    internal Dictionary<string, string> lastBlockDictionary { get; set; }
+    internal string chainSettings { get; set; }
+    internal PropertyGetValueResolver downloaderSettingsResolver { get; set; }
+    internal FunctionCallValueResolver endingBlockResolver { get; set; }
+    internal Dictionary<string, IValueResolver> valueResolvers { get; set; }
 
-        // Create a URLParser and pass the dictionary to its constructor
-        var parser = new URLParser(valueResolvers);
-
-        // Use the URLParser to create the output URL
-        var outputUrl = parser.GetOutputUrl(FullUrl);
-        Assert.Equal(expexted, outputUrl);
-    }
-    [Fact] public void Test2()
-    {
-        DownloaderSettings downloaderSettings;
-        Dictionary<string, string> lastBlockDictionary;
-        string chainSettings;
-        PreMadeCode(out downloaderSettings, out lastBlockDictionary, out chainSettings);        // Until this point, all this code is in the main program, and the following code is in the test project
-        // Create some instances of your resolvers
-        var downloaderSettingsResolver = new PropertyGetValueResolver(downloaderSettings);
-        var endingBlockResolver = new FunctionCallValueResolver(input => JustFunction.EndingBlock(downloaderSettings, lastBlockDictionary, chainSettings));
-
-        // Create a dictionary that maps parameter names to resolvers
-        var valueResolvers = new Dictionary<string, IValueResolver>
-        {
-            ["ChainId"] = downloaderSettingsResolver,
-            ["ContractAddress"] = downloaderSettingsResolver,
-            ["StartingBlock"] = downloaderSettingsResolver,
-            ["EndingBlock"] = endingBlockResolver,
-            ["PageNumber"] = downloaderSettingsResolver,
-            ["MaxPageNumber"] = downloaderSettingsResolver,  // Assuming MaxPageNumber is the same as PageNumber
-            ["Key"] = downloaderSettingsResolver
-        };
-
-        // Create a URLParser and pass the dictionary to its constructor
-        var parser = new URLParser(valueResolvers,true);
-
-        // Use the URLParser to create the output URL
-        var outputUrl = parser.GetOutputUrl(FullUrl);
-        Assert.Equal(expexted2, outputUrl);
-    }
-
-    private static void PreMadeCode(out DownloaderSettings downloaderSettings, out Dictionary<string, string> lastBlockDictionary, out string chainSettings)
+    public UnitTest1()
     {
         #region PreMadeCode
         // Create a DownloaderSettings instance
@@ -87,5 +35,39 @@ public class UnitTest1
         lastBlockDictionary = new Dictionary<string, string>();
         chainSettings = "";
         #endregion PreMadeCode
+
+        downloaderSettingsResolver = new PropertyGetValueResolver(downloaderSettings);
+        endingBlockResolver = new FunctionCallValueResolver(input => JustFunction.EndingBlock(downloaderSettings, lastBlockDictionary, chainSettings));
+
+        valueResolvers = new Dictionary<string, IValueResolver>
+        {
+            ["ChainId"] = downloaderSettingsResolver,
+            ["ContractAddress"] = downloaderSettingsResolver,
+            ["StartingBlock"] = downloaderSettingsResolver,
+            ["EndingBlock"] = endingBlockResolver,
+            ["PageNumber"] = downloaderSettingsResolver,
+            ["MaxPageNumber"] = downloaderSettingsResolver,  // Assuming MaxPageNumber is the same as PageNumber
+            ["Key"] = downloaderSettingsResolver
+        };
+    }
+
+    [Fact]
+    public void Test1()
+    {
+        // Create a URLParser and pass the dictionary to its constructor
+        var parser = new URLParser(valueResolvers);
+
+        // Use the URLParser to create the output URL
+        var outputUrl = parser.GetOutputUrl(FullUrl);
+        Assert.Equal(expexted, outputUrl);
+    }
+    [Fact] public void Test2()
+    {
+        // Create a URLParser and pass the dictionary to its constructor
+        var parser = new URLParser(valueResolvers,true);
+
+        // Use the URLParser to create the output URL
+        var outputUrl = parser.GetOutputUrl(FullUrl);
+        Assert.Equal(expexted2, outputUrl);
     }
 }
