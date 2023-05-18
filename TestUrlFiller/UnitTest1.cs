@@ -54,20 +54,14 @@ public class UnitTest1
     [Fact]
     public void Test1()
     {
-        // Create a URLParser and pass the dictionary to its constructor
-        var parser = new URLParser(ValueResolvers);
+        var outputUrl = new URLParser(ValueResolvers).GetOutputUrl(FullUrl);
 
-        // Use the URLParser to create the output URL
-        var outputUrl = parser.GetOutputUrl(FullUrl);
         Assert.Equal(expexted, outputUrl);
     }
     [Fact] public void Test2()
     {
-        // Create a URLParser and pass the dictionary to its constructor
-        var parser = new URLParser(ValueResolvers,true);
+        var outputUrl = new URLParser(ValueResolvers, true).GetOutputUrl(FullUrl);
 
-        // Use the URLParser to create the output URL
-        var outputUrl = parser.GetOutputUrl(FullUrl);
         Assert.Equal(expexted2, outputUrl);
     }
 }
