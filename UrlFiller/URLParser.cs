@@ -12,9 +12,9 @@ namespace UrlFiller
             this.valueResolvers = valueResolvers;
         }
 
-        public Url GetOutputUrl(string Url) => GetParsedUrl(new Url(Url));
-        
-        private Url GetParsedUrl(Url url) => new Url(url.Root)
+        public Url GetOutputUrl(string Url) => GetOutputUrl(new Url(Url));
+
+        public Url GetOutputUrl(Url url) => new Url(url.Root)
                 .AppendPathSegments(url.PathSegments.Select(GetRealValue))
                 .SetQueryParams(url.QueryParams.Select(p =>
                     new KeyValuePair<string, string>(p.Name, GetRealValue(p.Value.ToString()))));
