@@ -43,6 +43,19 @@ will be:
  const string expexted = "https://api.covalenthq.com/v1/1/events/address/0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9?starting-block=0&ending-block=99999999&page-number=0&page-size=99999999&key=ckey_1234567890";
 ```
 
+### Trailing Slash Support
+
+The `URLParser` class supports adding a trailing slash to the output URL. This is controlled by a boolean argument (`needsTrailingSlash`) in the constructor. If `true`, a trailing slash will be added to the output URL. This feature is useful for APIs that require URLs to end with a slash.
+
+Example:
+
+```csharp
+var parser = new URLParser(valueResolvers, true); // Pass 'true' to add a trailing slash
+var outputUrl = parser.GetOutputUrl("https://api.covalenthq.com/v1/[ChainId]/events/address/[ContractAddress]?starting-block=[StartingBlock]&ending-block=[EndingBlock]&page-number=[PageNumber]&page-size=[MaxPageNumber]&key=[Key]");
+```
+
+Please note that whether to add a trailing slash depends on the API you're calling. Some APIs require a trailing slash, while others do not. Always consult the API documentation to be sure.
+
 ### Note
 
 The URLParser class uses the Flurl library for URL parsing and manipulation.
